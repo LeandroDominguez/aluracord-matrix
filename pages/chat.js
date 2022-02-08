@@ -9,8 +9,14 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5v
 const SUPABASE_URL = 'https://lkobadvrgszvekxpnrto.supabase.co';
 const supabaseClient = createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
-
-
+function escutaMensagensEmTempoReal(adicionaMensagem){
+  return supabaseClient
+      .from('mensagens')
+      .on ('INSERT', (respostaLive) => {
+        adicionaMensagem(respostaLive.new);
+      })
+      .subscribe();
+}
 
 
 export default function ChatPage() {
@@ -38,9 +44,19 @@ export default function ChatPage() {
     .select('*')
     .order('id',{ascending: false})
     .then(({data}) =>{
-      console.log('Dados da consulta:',data );
+      //console.log('Dados da consulta:',data );
       setlistaDeMensagens(data);
-    });    
+    });
+    escutaMensagensEmTempoReal((novaMensagem) =>{
+      //handleNovaMensagem(novaMensagem)
+      setlistaDeMensagens((valorAtualDaLista) => {
+        return [
+          novaMensagem,
+          ...valorAtualDaLista,
+        ]
+      });            
+     
+    });     
   },[]);
   
   // Sua lógica vai aqui
@@ -70,11 +86,8 @@ export default function ChatPage() {
       mensagem
     ])  
     .then (({data}) => {
-      console.log('criando mensagem:',data)
-      setlistaDeMensagens([
-        data[0],
-        ...listaDeMensagens,
-      ]);
+      //console.log('criando mensagem:',data)
+      
         
      
     });
@@ -170,7 +183,7 @@ export default function ChatPage() {
             />
             <ButtonSendSticker
               onStickerClick={(sticker)=>{
-                console.log('[usando o componente] Salva o sticker no banco', sticker);
+                //console.log('[usando o componente] Salva o sticker no banco', sticker);
                 handleNovaMensagem(':sticker:' + sticker);
               }}
             />
@@ -206,7 +219,7 @@ function Header() {
 }
 
 function MessageList(props) {
-  console.log(props);
+  //console.log(props);
   return (
     <Box
       tag="ul"
